@@ -1,0 +1,47 @@
+name: docker-builds
+
+on:
+
+  workflow_dispatch: # manual option
+  schedule:
+    - cron: '0 0 1 * *' # every month
+
+env:
+  REGISTRY_GITHUB_DOMAIN: ghcr.io
+  REPO_NAME_FULL: ${{ github.repository }}
+
+jobs:
+
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: docker/login-action@0d4c9c5ea7693da7b068278f7b52bda2a190a446 # v3.2.0
+        with:
+          registry: ${{ env.REGISTRY_GITHUB_DOMAIN }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: docker-commands # from dockerfile
+        working-directory: ./docker/base-w2022-core
+        run: |
+          $DOCKER_TAG="ghcr.io/${{ github.repository }}/base-w2022-core:latest"
+          docker build -t "${DOCKER_TAG}" .
+          docker push "${DOCKER_TAG}"
+
+  clean:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    needs: build
+    permissions:
+      packages: write
+    steps:
+      - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+        with: 
+          package-name: base-w2022-core
+          package-type: container
+          min-versions-to-keep: 0
+          delete-only-untagged-versions: true

@@ -1,0 +1,37 @@
+{
+  "LogConfig": {
+    "sources": [      
+      {
+        "type": "EventLog",
+        "startAtOldestRecord": true,
+        "eventFormatMultiLine": false,
+        "channels": [
+          {
+            "name": "system",
+            "level": "Error"
+          },
+          {
+            "name": "application",
+            "level": "Error"
+          }
+        ]
+      },
+	  {
+        "type": "File",
+        "directory": "C:\\inetpub\\logs",
+        "filter": "*.log",
+        "includeSubdirectories": true,
+        "includeFileNames": false,
+        "waitInSeconds": "30"
+      },
+      {
+        "type": "File",
+        "directory": "C:\\logs",
+        "filter": "*.log",
+        "includeSubdirectories": true,
+        "includeFileNames": false,
+        "waitInSeconds": "30"
+      }
+    ]
+  }
+}
