@@ -4,17 +4,20 @@ FROM mcr.microsoft.com/windows/servercore/iis:windowsservercore-ltsc2022
 RUN powershell.exe -NoProfile -Command `
     New-Item -ItemType Directory -Force -Path 'C:\inetpub\logs'; `
     New-Item -ItemType Directory -Force -Path 'C:\logs'; `
-    New-Item -ItemType Directory -Force -Path 'C:\temp'
+    New-Item -ItemType Directory -Force -Path 'C:\temp'; `
+    New-Item -ItemType Directory -Force -Path 'C:\LogMonitor'
 
 RUN cmd /c icacls C:/inetpub/wwwroot /grant:r Everyone:F /t
 RUN cmd /c icacls C:/logs /grant:r Everyone:F /t
+
+WORKDIR /LogMonitor
 
 COPY /logmon .
 
 RUN powershell.exe -NoProfile -Command `
     Invoke-WebRequest -UseBasicParsing `
         -Uri "https://github.com/microsoft/windows-container-tools/releases/download/v2.1.1/LogMonitor.exe" `
-        -OutFile 'C:\LogMonitor.exe'
+        -OutFile 'C:\LogMonitor\LogMonitor.exe'
 
 WORKDIR /temp
 
@@ -95,8 +98,4 @@ ENTRYPOINT [ `
     "-NoProfile", `
     "-ExecutionPolicy", "Bypass", `
     "-Command", `
-    " `
-    Start-Process -FilePath 'C:\ServiceMonitor.exe'; `
-    Start-Process -FilePath 'C:\LogMonitor.exe' -NoNewWindow -Wait `
-    " `
-]
+    " Start-Process -FilePath 'C:\ServiceMonitor.exe'; Start-Process -FilePath 'C:\LogMonitor\LogMonitor.exe' -NoNewWindow -Wait" ]
