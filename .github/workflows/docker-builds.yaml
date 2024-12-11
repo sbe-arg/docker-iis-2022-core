@@ -31,18 +31,3 @@ jobs:
           $DOCKER_TAG="ghcr.io/${{ github.repository }}/base-w2022-core:latest"
           docker build -t "${DOCKER_TAG}" .
           docker push "${DOCKER_TAG}"
-
-  clean:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 5
-    needs: build
-    permissions:
-      packages: write
-    steps:
-      - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
-        with: 
-          package-name: base-w2022-core
-          package-type: container
-          min-versions-to-keep: 0
-          delete-only-untagged-versions: true
-          token: ${{ secrets.GITHUB_TOKEN }}
