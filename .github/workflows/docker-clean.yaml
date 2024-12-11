@@ -1,0 +1,27 @@
+name: docker-clean
+
+on:
+
+  workflow_dispatch: # manual option
+  schedule:
+    - cron: '0 0 * * *' # every day
+
+env:
+  REGISTRY_GITHUB_DOMAIN: ghcr.io
+  REPO_NAME_FULL: ${{ github.repository }}
+
+jobs:
+
+  clean:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    permissions:
+      packages: write
+    steps:
+      - uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+        with: 
+          package-name: docker-iis-2022-core/base-w2022-core
+          package-type: container
+          min-versions-to-keep: 0
+          delete-only-untagged-versions: true
+          token: ${{ secrets.GITHUB_TOKEN }}
