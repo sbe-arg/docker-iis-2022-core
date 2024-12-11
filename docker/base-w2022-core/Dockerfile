@@ -5,6 +5,7 @@ RUN powershell.exe -NoProfile -Command `
     New-Item -ItemType Directory -Force -Path 'C:\inetpub\logs'; `
     New-Item -ItemType Directory -Force -Path 'C:\logs'; `
     New-Item -ItemType Directory -Force -Path 'C:\temp'; `
+    New-Item -ItemType Directory -Force -Path 'C:\pwsh'; `
     New-Item -ItemType Directory -Force -Path 'C:\LogMonitor'
 
 RUN cmd /c icacls C:/inetpub/wwwroot /grant:r Everyone:F /t
@@ -18,6 +19,13 @@ RUN powershell.exe -NoProfile -Command `
     Invoke-WebRequest -UseBasicParsing `
         -Uri "https://github.com/microsoft/windows-container-tools/releases/download/v2.1.1/LogMonitor.exe" `
         -OutFile 'C:\LogMonitor\LogMonitor.exe'
+
+RUN powershell.exe -NoProfile -Command `
+    Invoke-WebRequest `
+        -UseBasicParsing `
+        -Uri https://github.com/PowerShell/PowerShell/releases/download/v7.4.6/PowerShell-7.4.6-win-x64.zip `
+        -OutFile c:\temp\pwsh7.zip; `
+    Expand-Archive -Path c:\temp\pwsh7.zip -DestinationPath c:\pwsh
 
 WORKDIR /temp
 
@@ -33,7 +41,7 @@ RUN powershell.exe -NoProfile -Command `
         -OutFile rewrite_amd64_en-US.msi; `
     Start-Process rewrite_amd64_en-US.msi `
         -ArgumentList "/qn" -Wait
-
+    
 RUN powershell.exe -NoProfile -Command `
     Invoke-WebRequest `
         -UseBasicParsing `
